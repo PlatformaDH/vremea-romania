@@ -1,0 +1,290 @@
+:root {
+  --cerneala: #102033;
+  --hartie: rgba(255, 252, 247, 0.88);
+  --hartie-tare: #fffaf3;
+  --linie: rgba(16, 32, 51, 0.12);
+  --mut: #5d6b7a;
+  --accent: #c45c26;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  font-family: Outfit, "Segoe UI", sans-serif;
+  color: var(--cerneala);
+  background: #7aa0c4;
+  overflow-x: hidden;
+}
+
+.fundal {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(1200px 600px at 15% -10%, #f4e2c4 0%, transparent 55%),
+    radial-gradient(900px 500px at 100% 10%, #8eb6d9 0%, transparent 50%),
+    linear-gradient(180deg, #8fb4d6 0%, #c9d6c2 48%, #e8d5b5 100%);
+  transition: background 0.6s ease;
+}
+
+body.noapte .fundal {
+  background:
+    radial-gradient(900px 500px at 80% 0%, #3a4e78 0%, transparent 55%),
+    linear-gradient(180deg, #1b2740 0%, #2c3a55 55%, #3d4450 100%);
+}
+
+body.ploaie .fundal {
+  background: linear-gradient(180deg, #6d7f93 0%, #8a97a6 55%, #aeb6b3 100%);
+}
+
+body.noapte {
+  --cerneala: #eef3f8;
+  --hartie: rgba(18, 28, 44, 0.72);
+  --hartie-tare: #182338;
+  --linie: rgba(238, 243, 248, 0.12);
+  --mut: #b7c4d4;
+  --accent: #e8b86a;
+}
+
+.cadran {
+  position: relative;
+  z-index: 1;
+  width: min(760px, calc(100% - 32px));
+  margin: 32px auto 48px;
+  padding: 28px 28px 32px;
+  background: var(--hartie);
+  border: 1px solid var(--linie);
+  border-radius: 28px;
+  backdrop-filter: blur(16px);
+}
+
+.antet {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.eticheta {
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mut);
+}
+
+h1 {
+  font-family: Fraunces, Georgia, serif;
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 650;
+  line-height: 1.05;
+  margin-top: 4px;
+}
+
+.ora {
+  font-size: 0.95rem;
+  color: var(--mut);
+  text-align: right;
+}
+
+.alegere {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.alegere label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mut);
+}
+
+.alegere select,
+.alegere input {
+  width: 100%;
+  font-family: Outfit, "Segoe UI", sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--cerneala);
+  background: var(--hartie-tare);
+  border: 1px solid var(--linie);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.alegere select:focus,
+.alegere input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.stare {
+  color: var(--mut);
+}
+
+.acum {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px 24px;
+  align-items: end;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--linie);
+}
+
+.temperatura {
+  font-family: Fraunces, Georgia, serif;
+  font-size: clamp(4.4rem, 12vw, 7rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 0.85;
+}
+
+.temperatura span {
+  font-size: 0.42em;
+  vertical-align: super;
+}
+
+.descriere h2 {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 1.55rem;
+  font-weight: 500;
+}
+
+.descriere p {
+  margin-top: 6px;
+  color: var(--mut);
+}
+
+.detalii {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 20px 0 8px;
+}
+
+.card {
+  background: var(--hartie-tare);
+  border: 1px solid var(--linie);
+  border-radius: 16px;
+  padding: 14px 14px 12px;
+}
+
+.card small {
+  display: block;
+  color: var(--mut);
+  font-size: 0.78rem;
+  margin-bottom: 6px;
+}
+
+.card strong {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+h2 {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 650;
+  margin: 24px 0 12px;
+}
+
+.banda {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.ora-card {
+  flex: 0 0 78px;
+  text-align: center;
+  background: var(--hartie-tare);
+  border: 1px solid var(--linie);
+  border-radius: 16px;
+  padding: 12px 8px;
+}
+
+.ora-card .cand {
+  font-size: 0.78rem;
+  color: var(--mut);
+}
+
+.ora-card .val {
+  display: block;
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+.lista-zile {
+  list-style: none;
+}
+
+.zi {
+  display: grid;
+  grid-template-columns: 1.4fr 1.6fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 0;
+  border-top: 1px solid var(--linie);
+}
+
+.zi:first-child {
+  border-top: 0;
+}
+
+.zi .nume {
+  font-weight: 600;
+}
+
+.zi .text {
+  color: var(--mut);
+  font-size: 0.92rem;
+}
+
+.zi .temp {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.eroare {
+  color: var(--accent);
+}
+
+@media (max-width: 640px) {
+  .cadran {
+    margin-top: 16px;
+    padding: 20px 18px 24px;
+    border-radius: 22px;
+  }
+
+  .acum {
+    grid-template-columns: 1fr;
+  }
+
+  .detalii {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .zi {
+    grid-template-columns: 1fr;
+  }
+
+  .alegere {
+    grid-template-columns: 1fr;
+  }
+}
