@@ -1,10 +1,11 @@
 :root {
-  --cerneala: #102033;
-  --hartie: rgba(255, 252, 247, 0.88);
-  --hartie-tare: #fffaf3;
-  --linie: rgba(16, 32, 51, 0.12);
-  --mut: #5d6b7a;
-  --accent: #c45c26;
+  --cerneala: #001040;
+  --hartie: #ffffff;
+  --hartie-tare: #f4f4f4;
+  --linie: rgba(54, 68, 122, 0.22);
+  --mut: #5a5a5a;
+  --accent: #fe911c;
+  --navy: #36447a;
 }
 
 * {
@@ -21,7 +22,7 @@ body {
 body {
   font-family: Outfit, "Segoe UI", sans-serif;
   color: var(--cerneala);
-  background: #7aa0c4;
+  background: var(--navy);
   overflow-x: hidden;
 }
 
@@ -30,29 +31,15 @@ body {
   inset: 0;
   z-index: 0;
   background:
-    radial-gradient(1200px 600px at 15% -10%, #f4e2c4 0%, transparent 55%),
-    radial-gradient(900px 500px at 100% 10%, #8eb6d9 0%, transparent 50%),
-    linear-gradient(180deg, #8fb4d6 0%, #c9d6c2 48%, #e8d5b5 100%);
+    radial-gradient(900px 480px at 12% -8%, rgba(254, 145, 28, 0.28) 0%, transparent 52%),
+    linear-gradient(180deg, #001040 0%, #36447a 58%, #293c5b 100%);
   transition: background 0.6s ease;
 }
 
-body.noapte .fundal {
-  background:
-    radial-gradient(900px 500px at 80% 0%, #3a4e78 0%, transparent 55%),
-    linear-gradient(180deg, #1b2740 0%, #2c3a55 55%, #3d4450 100%);
-}
-
 body.ploaie .fundal {
-  background: linear-gradient(180deg, #6d7f93 0%, #8a97a6 55%, #aeb6b3 100%);
-}
-
-body.noapte {
-  --cerneala: #eef3f8;
-  --hartie: rgba(18, 28, 44, 0.72);
-  --hartie-tare: #182338;
-  --linie: rgba(238, 243, 248, 0.12);
-  --mut: #b7c4d4;
-  --accent: #e8b86a;
+  background:
+    radial-gradient(900px 480px at 12% -8%, rgba(254, 145, 28, 0.18) 0%, transparent 52%),
+    linear-gradient(180deg, #001040 0%, #36447a 58%, #293c5b 100%);
 }
 
 .cadran {
@@ -60,11 +47,11 @@ body.noapte {
   z-index: 1;
   width: min(760px, calc(100% - 32px));
   margin: 32px auto 48px;
-  padding: 28px 28px 32px;
+  padding: 0 0 32px;
   background: var(--hartie);
-  border: 1px solid var(--linie);
+  border: 3px solid var(--accent);
   border-radius: 28px;
-  backdrop-filter: blur(16px);
+  overflow: hidden;
 }
 
 .antet {
@@ -72,14 +59,17 @@ body.noapte {
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
+  padding: 22px 28px 20px;
+  background: var(--navy);
+  color: #ffffff;
 }
 
 .eticheta {
   font-size: 0.82rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--mut);
+  color: var(--accent);
 }
 
 h1 {
@@ -88,11 +78,12 @@ h1 {
   font-weight: 650;
   line-height: 1.05;
   margin-top: 4px;
+  color: #ffffff;
 }
 
 .ora {
   font-size: 0.95rem;
-  color: var(--mut);
+  color: rgba(255, 255, 255, 0.85);
   text-align: right;
 }
 
@@ -100,17 +91,24 @@ h1 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  margin-bottom: 28px;
+  margin: 0 28px 28px;
 }
 
-.alegere label {
+.camp {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.camp-localitate {
+  position: relative;
+}
+
+.alegere label {
   font-size: 0.78rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--mut);
+  color: var(--navy);
 }
 
 .alegere select,
@@ -121,8 +119,8 @@ h1 {
   letter-spacing: 0;
   text-transform: none;
   color: var(--cerneala);
-  background: var(--hartie-tare);
-  border: 1px solid var(--linie);
+  background: #ffffff;
+  border: 2px solid var(--navy);
   border-radius: 12px;
   padding: 10px 12px;
 }
@@ -133,7 +131,48 @@ h1 {
   outline-offset: 1px;
 }
 
-.stare {
+.lista-sugestii {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 8;
+  max-height: 260px;
+  overflow: auto;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--hartie-tare);
+  border: 1px solid var(--linie);
+  border-radius: 12px;
+}
+
+.lista-sugestii li {
+  border-radius: 8px;
+}
+
+.lista-sugestii button {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--cerneala);
+  font: inherit;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.lista-sugestii button:hover,
+.lista-sugestii li[aria-selected="true"] button {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.lista-sugestii .gol {
+  padding: 8px 10px;
   color: var(--mut);
 }
 
@@ -142,8 +181,9 @@ h1 {
   grid-template-columns: auto 1fr;
   gap: 12px 24px;
   align-items: end;
+  margin: 0 28px;
   padding-bottom: 24px;
-  border-bottom: 1px solid var(--linie);
+  border-bottom: 3px solid var(--accent);
 }
 
 .temperatura {
@@ -152,6 +192,7 @@ h1 {
   font-weight: 500;
   letter-spacing: -0.04em;
   line-height: 0.85;
+  color: var(--accent);
 }
 
 .temperatura span {
@@ -163,6 +204,7 @@ h1 {
   font-family: Fraunces, Georgia, serif;
   font-size: 1.55rem;
   font-weight: 500;
+  color: var(--navy);
 }
 
 .descriere p {
@@ -174,12 +216,13 @@ h1 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
-  margin: 20px 0 8px;
+  margin: 20px 28px 8px;
 }
 
 .card {
   background: var(--hartie-tare);
   border: 1px solid var(--linie);
+  border-left: 4px solid var(--accent);
   border-radius: 16px;
   padding: 14px 14px 12px;
 }
@@ -200,14 +243,15 @@ h2 {
   font-family: Fraunces, Georgia, serif;
   font-size: 1.2rem;
   font-weight: 650;
-  margin: 24px 0 12px;
+  margin: 24px 28px 12px;
+  color: var(--navy);
 }
 
 .banda {
   display: flex;
   gap: 10px;
   overflow-x: auto;
-  padding-bottom: 6px;
+  padding: 0 28px 6px;
 }
 
 .ora-card {
@@ -230,8 +274,19 @@ h2 {
   font-weight: 600;
 }
 
+.ora-card:first-child {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+.ora-card:first-child .cand {
+  color: rgba(255, 255, 255, 0.9);
+}
+
 .lista-zile {
   list-style: none;
+  margin: 0 28px;
 }
 
 .zi {
@@ -259,10 +314,21 @@ h2 {
 .zi .temp {
   font-variant-numeric: tabular-nums;
   font-weight: 600;
+  color: var(--navy);
+}
+
+.zi:first-child .nume {
+  color: var(--accent);
 }
 
 .eroare {
   color: var(--accent);
+  margin: 0 28px;
+}
+
+.stare {
+  color: var(--mut);
+  margin: 0 28px;
 }
 
 @media (max-width: 640px) {

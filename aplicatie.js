@@ -44,20 +44,22 @@ const ZILE_SAPTAMANA = [
 ];
 
 const selectorJudet = document.getElementById("judet");
-const selectorLocalitate = document.getElementById("localitate");
-const campFiltru = document.getElementById("filtru-localitate");
+const campLocalitate = document.getElementById("localitate");
+const listaSugestii = document.getElementById("lista-localitati");
 
-let dateLocatii = { judete: [], localitati: {} };
+let dateLocatii = window.DATE_LOCATII || { judete: [], localitati: {} };
+let localitateAleasa = LOCATIE_IMPLICITA.localitate;
+let indexActiv = -1;
 
 function normalizeaza(text) {
-  return text
+  return String(text)
     .toLocaleLowerCase("ro-RO")
     .normalize("NFD")
     .replace(/\p{M}/gu, "");
 }
 
 function escapeazaHtml(text) {
-  return text.replace(/[&<>"']/g, (caracter) => {
+  return String(text).replace(/[&<>"']/g, (caracter) => {
     const harta = {
       "&": "&amp;",
       "<": "&lt;",
@@ -108,35 +110,8 @@ function completeazaJudete(idSelectat) {
     .join("");
 }
 
-function completeazaLocalitati(idJudet, numeSelectat, filtru = "") {
-  const cautare = normalizeaza(filtru.trim());
-  const lista = localitatiDinJudet(idJudet).filter((loc) =>
-    cautare ? normalizeaza(loc.n).includes(cautare) : true
-  );
-
-  const existaSelectia = lista.find(
-    (loc) => normalizeaza(loc.n) === normalizeaza(numeSelectat)
-  );
-  const ales = existaSelectia
-    ? existaSelectia.n
-    : alegeLocalitateImplicita(idJudet, lista);
-
-  selectorLocalitate.innerHTML = lista
-    .map(
-      (loc) =>
-        `<option value="${escapeazaHtml(loc.n)}"${
-          loc.n === ales ? " selected" : ""
-        }>${escapeazaHtml(loc.n)}</option>`
-    )
-    .join("");
-
-  if (!lista.length) {
-    selectorLocalitate.innerHTML =
-      '<option value="">Nu am găsit localități</option>';
-  }
-}
-
-function alegeLocalitateImplicita(idJudet, lista) {
+function alegeLocalitateImplicita(idJudet) {
+  const lista = localitatiDinJudet(idJudet);
   const numeJud = numeJudet(idJudet);
   const dupaNume = lista.find(
     (loc) => normalizeaza(loc.n) === normalizeaza(numeJud)
@@ -144,16 +119,91 @@ function alegeLocalitateImplicita(idJudet, lista) {
   return dupaNume?.n ?? lista[0]?.n ?? "";
 }
 
-function locatieCurenta() {
-  const idJudet = selectorJudet.value;
-  const nume = selectorLocalitate.value;
-  const gasita = localitatiDinJudet(idJudet).find(
+function gasesteLocalitate(idJudet, nume) {
+  return localitatiDinJudet(idJudet).find(
     (loc) => normalizeaza(loc.n) === normalizeaza(nume)
   );
+}
+
+function filtruLocalitati(idJudet, text) {
+  const cautare = normalizeaza(text.trim());
+  const lista = localitatiDinJudet(idJudet);
+  if (!cautare) {
+    return lista;
+  }
+  return lista.filter((loc) => normalizeaza(loc.n).includes(cautare));
+}
+
+function inchideSugestii() {
+  listaSugestii.hidden = true;
+  listaSugestii.innerHTML = "";
+  campLocalitate.setAttribute("aria-expanded", "false");
+  indexActiv = -1;
+}
+
+function deschideSugestii(filtru = campLocalitate.value) {
+  const lista = filtruLocalitati(selectorJudet.value, filtru).slice(0, 80);
+  if (!lista.length) {
+    listaSugestii.innerHTML =
+      '<li class="gol">Nu am găsit localități</li>';
+    listaSugestii.hidden = false;
+    campLocalitate.setAttribute("aria-expanded", "true");
+    indexActiv = -1;
+    return;
+  }
+
+  listaSugestii.innerHTML = lista
+    .map((loc, index) => {
+      const aleasa =
+        normalizeaza(loc.n) === normalizeaza(localitateAleasa);
+      return `<li role="option" data-index="${index}" data-nume="${escapeazaHtml(
+        loc.n
+      )}" aria-selected="${aleasa ? "true" : "false"}">
+        <button type="button">${escapeazaHtml(loc.n)}</button>
+      </li>`;
+    })
+    .join("");
+  listaSugestii.hidden = false;
+  campLocalitate.setAttribute("aria-expanded", "true");
+  indexActiv = lista.findIndex(
+    (loc) => normalizeaza(loc.n) === normalizeaza(localitateAleasa)
+  );
+  if (indexActiv < 0) {
+    indexActiv = 0;
+  }
+  marcheazaActiv();
+}
+
+function elementeOptiuni() {
+  return [...listaSugestii.querySelectorAll('[role="option"]')];
+}
+
+function marcheazaActiv() {
+  const optiuni = elementeOptiuni();
+  optiuni.forEach((element, index) => {
+    element.setAttribute("aria-selected", index === indexActiv ? "true" : "false");
+  });
+  optiuni[indexActiv]?.scrollIntoView({ block: "nearest" });
+}
+
+function alegeDinLista(nume) {
+  const gasita = gasesteLocalitate(selectorJudet.value, nume);
+  if (!gasita) {
+    return;
+  }
+  localitateAleasa = gasita.n;
+  campLocalitate.value = gasita.n;
+  inchideSugestii();
+  actualizeazaVremea();
+}
+
+function locatieCurenta() {
+  const idJudet = selectorJudet.value;
+  const gasita = gasesteLocalitate(idJudet, localitateAleasa);
   return {
     judet: idJudet,
     numeJudet: numeJudet(idJudet),
-    localitate: nume,
+    localitate: gasita?.n ?? localitateAleasa,
     lat: gasita?.lat,
     lng: gasita?.lng,
   };
@@ -186,8 +236,7 @@ function esteNoapte(ora) {
   return ora.getHours() < 6 || ora.getHours() >= 20;
 }
 
-function actualizeazaTema(cod, data) {
-  document.body.classList.toggle("noapte", esteNoapte(data));
+function actualizeazaTema(cod) {
   const ploua = [51, 53, 55, 61, 63, 65, 80, 81, 82, 95, 96, 99].includes(cod);
   document.body.classList.toggle("ploaie", ploua);
 }
@@ -233,7 +282,7 @@ function afiseazaAntet(locatie) {
 function afiseaza(date) {
   const acum = date.current;
   const moment = new Date(acum.time);
-  actualizeazaTema(acum.weather_code, moment);
+  actualizeazaTema(acum.weather_code);
 
   document.getElementById("ora-locala").textContent = formateazaDataCompleta(moment);
 
@@ -297,7 +346,7 @@ async function actualizeazaVremea() {
   const locatie = locatieCurenta();
   if (locatie.lat == null || locatie.lng == null) {
     document.getElementById("panou-acum").innerHTML =
-      '<p class="eroare">Alege un județ și o localitate.</p>';
+      '<p class="eroare">Alege un județ și o localitate din listă.</p>';
     return;
   }
 
@@ -316,27 +365,57 @@ async function actualizeazaVremea() {
 }
 
 selectorJudet.addEventListener("change", () => {
-  campFiltru.value = "";
-  completeazaLocalitati(selectorJudet.value, alegeLocalitateImplicita(selectorJudet.value, localitatiDinJudet(selectorJudet.value)));
+  localitateAleasa = alegeLocalitateImplicita(selectorJudet.value);
+  campLocalitate.value = localitateAleasa;
+  inchideSugestii();
   actualizeazaVremea();
 });
 
-selectorLocalitate.addEventListener("change", () => {
-  actualizeazaVremea();
+campLocalitate.addEventListener("focus", () => {
+  deschideSugestii(campLocalitate.value);
 });
 
-campFiltru.addEventListener("input", () => {
-  completeazaLocalitati(
-    selectorJudet.value,
-    selectorLocalitate.value,
-    campFiltru.value
-  );
+campLocalitate.addEventListener("input", () => {
+  deschideSugestii(campLocalitate.value);
 });
 
-campFiltru.addEventListener("keydown", (eveniment) => {
-  if (eveniment.key === "Enter") {
+campLocalitate.addEventListener("keydown", (eveniment) => {
+  const optiuni = elementeOptiuni();
+  if (eveniment.key === "ArrowDown") {
     eveniment.preventDefault();
-    actualizeazaVremea();
+    if (listaSugestii.hidden) {
+      deschideSugestii(campLocalitate.value);
+      return;
+    }
+    indexActiv = Math.min(indexActiv + 1, optiuni.length - 1);
+    marcheazaActiv();
+  } else if (eveniment.key === "ArrowUp") {
+    eveniment.preventDefault();
+    indexActiv = Math.max(indexActiv - 1, 0);
+    marcheazaActiv();
+  } else if (eveniment.key === "Enter") {
+    eveniment.preventDefault();
+    const aleasa = optiuni[indexActiv] || optiuni[0];
+    if (aleasa) {
+      alegeDinLista(aleasa.dataset.nume);
+    }
+  } else if (eveniment.key === "Escape") {
+    inchideSugestii();
+  }
+});
+
+listaSugestii.addEventListener("mousedown", (eveniment) => {
+  const optiune = eveniment.target.closest('[role="option"]');
+  if (!optiune) {
+    return;
+  }
+  eveniment.preventDefault();
+  alegeDinLista(optiune.dataset.nume);
+});
+
+document.addEventListener("mousedown", (eveniment) => {
+  if (!eveniment.target.closest(".camp-localitate")) {
+    inchideSugestii();
   }
 });
 
@@ -345,15 +424,9 @@ document.getElementById("form-locatie").addEventListener("submit", (eveniment) =
 });
 
 async function porneste() {
-  try {
-    const raspuns = await fetch("localitati.json");
-    if (!raspuns.ok) {
-      throw new Error("Nu am putut încărca lista de localități.");
-    }
-    dateLocatii = await raspuns.json();
-  } catch (eroare) {
+  if (!dateLocatii.judete?.length) {
     document.getElementById("panou-acum").innerHTML =
-      `<p class="eroare">${eroare.message}</p>`;
+      '<p class="eroare">Nu am putut încărca lista de localități.</p>';
     return;
   }
 
@@ -361,9 +434,11 @@ async function porneste() {
   const idJudet = dateLocatii.localitati[salvata.judet]
     ? salvata.judet
     : LOCATIE_IMPLICITA.judet;
+  const gasita = gasesteLocalitate(idJudet, salvata.localitate);
+  localitateAleasa = gasita?.n ?? alegeLocalitateImplicita(idJudet);
+  campLocalitate.value = localitateAleasa;
 
   completeazaJudete(idJudet);
-  completeazaLocalitati(idJudet, salvata.localitate);
   await actualizeazaVremea();
 }
 
